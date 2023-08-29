@@ -18,12 +18,18 @@ def get_products():
     brand_name = request.args.get('brand_name')
 
     try:
+        products = None
         if brand_name is None:
             products = ProductModel.get_products()
-            return products
+            #return products
         else:
             products = ProductModel.filter_brand(brand_name)
-            return products
+            #return products
+        
+        return {
+            "productos": products[0],
+            "total": len(products[0])
+        }
     except Exception as e:
         raise e
 

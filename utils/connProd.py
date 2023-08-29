@@ -8,7 +8,7 @@ class Conexion:
             self.conexion = mysql.connect(
                 host="127.0.0.1",
                 user="root",
-                password="root",
+                password="617182@Fernando",
                 database="production"
             )
             self.cursor = self.conexion.cursor()
