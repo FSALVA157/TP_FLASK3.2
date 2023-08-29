@@ -7,30 +7,27 @@ class ProductModel:
     def get_product_by_id(cls, prod_id):
         conn = Conexion()
         try:
-            sql = """SELECT * from products
-                    inner join brands on products.brand_id = brands.brand_id
-                    inner join categories on products.category_id = categories.category_id
+            sql = """SELECT 
+                    p.product_id,
+                    p.product_name,
+                    p.model_year,
+                    p.list_price,
+                    bd.brand_id, 
+                    bd.brand_name,
+                    ca.category_id, 
+                    ca.category_name from products p
+                    inner join brands bd on p.brand_id = bd.brand_id
+                    inner join categories ca on p.category_id = ca.category_id
                     where product_id = %s """
             conn.execute(sql, (prod_id,))
-            products = conn.fetchone()
+            products = conn.fetchall()
             if products is not None:
-                response_data = {
-                    "Brand": {
-                        "brand_id": products[5],
-                        "brand_name": products[6]
-                    },
-                    "Category": {
-                        "category_id": products[7],
-                        "category_name": products[8]
-                    },
-                    "Product": {
-                        "product_id": products[0],
-                        "product_name": products[1],
-                        "product_description": products[2],
-                        "product_price": products[3],
-                    }
-                }
-                return response_data, 200
+                prod_list = []
+                for produc in products:
+                    items = Product(produc[0], produc[1], produc[2], produc[3], produc[4], produc[5], produc[6],
+                                    produc[7])
+                    prod_list.append(items.to_json())
+                return prod_list, 200
             else:
                 response_data = {
                     "message": "Product not found"
@@ -92,7 +89,6 @@ class ProductModel:
                             "Products_year": product[4],
                             "Products_price": product[5],
                         }
-
                     }
                     product_list.append(items)
                 return product_list, 200
@@ -111,7 +107,6 @@ class ProductModel:
             sql = """INSERT INTO products (product_name, brand_id, category_id, model_year, list_price) 
                         VALUES (%s, %s, %s, %s, %s)"""
             conn.execute(sql, (product_name, brand_id, category_id, model_year, list_price))
-            products = conn.fetchall()
             if conn.rowcount() > 0:
                 response_data = {
                     "message": "Product registered successfully"
@@ -129,7 +124,8 @@ class ProductModel:
     def mod_product_by_id(cls, product_name, brand_id, category_id, model_year, list_price, prod_id):
         conn = Conexion()
         try:
-            sql = """UPDATE products SET product_name = %s, brand_id = %s, category_id = %s, model_year = %s, list_price = %s
+            sql = """UPDATE products SET product_name = %s, brand_id = %s, category_id = %s, model_year = %s, 
+            list_price = %s
             WHERE product_id = %s"""
             conn.execute(sql, (product_name, brand_id, category_id, model_year, list_price, prod_id,))
             if conn.rowcount() > 0:
