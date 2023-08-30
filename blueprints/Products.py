@@ -13,6 +13,7 @@ def produ_by_id(prod_id):
         raise e
 
 
+
 @products_app.route("/products", methods=['GET'])
 def get_products():
     brand_name = request.args.get('brand_name')
@@ -50,15 +51,21 @@ def add_product():
 
 
 @products_app.route("/products/update/<int:prod_id>", methods=['PUT'])
-def update_product(prod_id):
-    product_name = request.json['product_name']
-    brand_id = request.json['brand_id']
-    category_id = request.json['category_id']
-    model_year = request.json['model_year']
-    list_price = request.json['list_price']
-
+def update_product(prod_id):    
+    data_recibida = request.json
     try:
-        prod = ProductModel.mod_product_by_id(product_name, brand_id, category_id, model_year, list_price, prod_id)
+        res = ProductModel.get_one_product(prod_id)        
+              
+        data = res[0]                
+        data.update(data_recibida)        
+        
+        prod = ProductModel.mod_product_by_id(
+            data["product_name"],
+            data["brand_id"],
+            data["category_id"],
+            data["model_year"],
+            data["list_price"],
+            prod_id)
         return prod
     except Exception as e:
         raise e

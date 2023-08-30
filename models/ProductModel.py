@@ -35,6 +35,33 @@ class ProductModel:
                 return response_data, 404
         except Exception as e:
             raise e
+    
+    """este metodo no pertenece a un endpoint
+        solo es utilizado por el endpoint que actualiza un registro
+    """
+    @classmethod
+    def get_one_product(cls, prod_id):
+        conn = Conexion()
+        try:
+            sql = """SELECT * from products where product_id = %s """
+            conn.execute(sql, (prod_id,))
+            product = conn.fetchall()            
+            if product is not None:
+                return {
+                            "product_id": product[0][0],
+                            "product_name": product[0][1],
+                            "brand_id": product[0][2],
+                            "category_id": product[0][3],
+                            "model_year": product[0][4],
+                            "list_price": product[0][5],
+                        }, 200
+            else:
+                response_data = {
+                    "message": "Product not found"
+                }
+                return response_data, 404
+        except Exception as e:
+            raise e
 
     @classmethod
     def filter_brand(cls, brand_name):
@@ -121,7 +148,7 @@ class ProductModel:
             raise e
 
     @classmethod
-    def mod_product_by_id(cls, product_name, brand_id, category_id, model_year, list_price, prod_id):
+    def mod_product_by_id(cls, product_name, brand_id, category_id, model_year, list_price, prod_id):        
         conn = Conexion()
         try:
             sql = """UPDATE products SET product_name = %s, brand_id = %s, category_id = %s, model_year = %s, 
